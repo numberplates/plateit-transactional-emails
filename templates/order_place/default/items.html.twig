@@ -1,0 +1,47 @@
+<h2 class="h2">Items Ordered</h2>
+
+{% for package in packages %}
+<h3 class="h3">Package {{ loop.index }} of {{ loop.length }}</h3>
+
+<table width="100%" cellpadding="8" cellspacing="0" class="table">
+  <thead>
+    <tr>
+      <th scope="col" class="text-left">Item</th>
+      <th scope="col" class="text-right">Qty</th>
+      <th scope="col" class="text-right">Unit Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for plate in package.plates|default([]) %}
+    <tr>
+      <td class="text-left">
+        <strong>{{ plate.registration }}</strong><br>
+        {{ plate.type }} | {{ plate.colour }}<br>
+        {{ plate.width }}×{{ plate.height }}mm
+      </td>
+      <td class="text-right">{{ plate.qty }}</td>
+      <td class="text-right">£{{ (plate.price / 100)|number_format(2, '.', ',') }}</td>
+    </tr>
+    {% endfor %}
+    {% for product in package.products|default([]) %}
+    <tr>
+      <td class="text-left">
+        <strong>{{ product.name }}</strong>
+      </td>
+      <td class="text-right">{{ product.qty }}</td>
+      <td class="text-right">£{{ (product.price / 100)|number_format(2, '.', ',') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+
+<h3 class="h3">Order Totals</h3>
+
+<table width="100%" cellpadding="8" cellspacing="0" class="table">
+  <tbody>
+    <tr><th scope="row" class="text-left">Subtotal</th><td class="text-right">£{{ (amount_subtotal / 100)|number_format(2, '.', ',') }}</td></tr>
+    <tr><th scope="row" class="text-left">Shipping</th><td class="text-right">£{{ (amount_shipping / 100)|number_format(2, '.', ',') }}</td></tr>
+    <tr><th scope="row" class="text-left">Total</th><td class="text-right"><strong>£{{ (amount_total / 100)|number_format(2, '.', ',') }}</strong></td></tr>
+  </tbody>
+</table>

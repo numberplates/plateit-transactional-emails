@@ -1,0 +1,25 @@
+{% set order_url = include('order_url.twig')|trim %}
+<div class="alert">
+  <p><strong>IMPORTANT</strong></p>
+  <p>As a registered number plate supplier, we need to see your ID before we can manufacture and ship your order. We also need to see proof of entitlement. Please upload your corresponding documents using the secure link below. <strong>We cannot manufacture your plates until these have been received.</strong></p>
+  <p><a href="{{ order_url|escape('html') }}">Upload your documents securely</a></p>
+  <p>We can accept these forms of ID:</p>
+  <ul>
+    <li>Driving licence (with or without a photograph)</li>
+    <li>Recent Utility or Council Tax bill (dated within the last 6 months)</li>
+    <li>Recent Bank statement (dated within the last 6 months)</li>
+    <li>National identity card</li>
+  </ul>
+  <p>We can accept these forms of entitlement:</p>
+  <ul>
+    <li>Vehicle registration certificate (V5C or V5CNI)</li>
+    <li>New keeper slip from the V5C or V5CNI</li>
+    <li>Certificate of entitlement (V750 or V750NI)</li>
+    <li>Retention document (V778)</li>
+    <li>Vehicle tax or SORN renewal reminder (V11 or V11NI)</li>
+    <li>Temporary registration certificate (V379 or V379NI)</li>
+    <li>Number plate authorisation certificate (V948) with an official DVLA stamp</li>
+    <li>Electronic number plate authorisation certificate (eV948 or eV948/2)</li>
+    <li>UK trailer registration certificate (VTRC)</li>
+  </ul>
+</div>

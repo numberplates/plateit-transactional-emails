@@ -1,0 +1,50 @@
+.email-body {
+  margin: 0;
+  padding: 24px;
+  background-color: #ffffff;
+  color: #222222;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.email-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.alert {
+  background-color: #fff8e8;
+  border: 1px solid #ead9ac;
+  border-left: 4px solid #c89732;
+  padding: 16px 20px;
+  margin: 24px 0;
+}
+
+.h2 {
+  font-size: 20px;
+  margin-top: 28px;
+}
+
+.h3 {
+  font-size: 17px;
+  margin-top: 24px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table tr {
+  border-bottom: 1px solid #eeeeee;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}

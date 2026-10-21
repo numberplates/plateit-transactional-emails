@@ -1,0 +1,7 @@
+{% set order_url = include('order_url.twig')|trim %}
+<p>The status of a package pertaining to order <strong>#{{ order.id }}</strong> has been updated to <strong>{{ system_package_status.name }}</strong>.</p>
+<p>More information can be found at the link below:</p>
+<p><a href="{{ order_url|escape('html') }}">{{ order_url|escape('html') }}</a></p>
+{% if order.packages_count > 1 %}
+<p><strong>Please note:</strong> your order comprises of more than one package. The status of remaining packages may differ.</p>
+{% endif %}

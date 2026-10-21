@@ -1,0 +1,23 @@
+ITEMS ORDERED
+------------
+
+{% for package in packages %}
+Package {{ loop.index }} of {{ loop.length }}
+
+{% if package.plates|default([]) %}
+{% for plate in package.plates %}
+- {{ plate.registration }} ({{ plate.type }}, {{ plate.colour }}, {{ plate.width }}×{{ plate.height }}mm) — Qty: {{ plate.qty }} — £{{ (plate.price / 100)|number_format(2, '.', ',') }}
+{% endfor %}
+{% endif %}
+{% if package.products|default([]) %}
+{% for product in package.products %}
+- {{ product.name }} — Qty: {{ product.qty }} — £{{ (product.price / 100)|number_format(2, '.', ',') }}
+{% endfor %}
+
+{% endif %}
+{% endfor %}
+ORDER TOTALS
+------------
+Subtotal: £{{ (amount_subtotal / 100)|number_format(2, '.', ',') }}
+Shipping: £{{ (amount_shipping / 100)|number_format(2, '.', ',') }}
+Total: £{{ (amount_total / 100)|number_format(2, '.', ',') }}

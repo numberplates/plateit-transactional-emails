@@ -1,0 +1,11 @@
+{% set order_url = include('order_url.twig')|trim %}
+The status of a package pertaining to order #{{ order.id }} has been updated to {{ system_package_status.name }}.
+
+More information can be found at the link below:
+
+{{ order_url }}
+
+{% if order.packages_count > 1 %}
+Please note: your order comprises of more than one package. The status of remaining packages may differ.
+
+{% endif %}

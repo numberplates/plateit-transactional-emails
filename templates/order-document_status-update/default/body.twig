@@ -1,0 +1,13 @@
+{% set order_url = include('order_url.twig')|trim %}
+We have reviewed the documents for order #{{ order.id }} and could NOT accept {% if type|default('') == 'id' %}your proof of identity{% elseif type|default('') == 'entitlement' %}your proof of entitlement{% else %}one of your documents{% endif %}{% if registration|default('') %} for {{ registration }}{% endif %}.
+
+Please use the secure link below to upload a replacement:
+
+{{ order_url }}
+
+Please make sure the replacement is clear, legible and shows the whole document, with all details visible.
+
+We cannot manufacture your number plates until all required documents have been received and approved.
+
+Thank you for your help.
+

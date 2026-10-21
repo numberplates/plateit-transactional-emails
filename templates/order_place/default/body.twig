@@ -1,0 +1,20 @@
+{% set order_url = include('order_url.twig')|trim %}
+Thank you for placing an order with {{ company.name }}.
+
+Your order ID is #{{ id }}.
+
+The status of the order can be found at the link below:
+
+{{ order_url }}
+
+{% if packages_count > 1 %}
+Please note: your order comprises of more than one package. Some of your items may arrive separately.
+
+{% endif %}
+{% if system_order_document_status_id|default(0) >= 2 %}
+{% include 'documents.twig' %}
+{% endif %}
+{% include 'items.twig' %}
+
+Thank you for your custom.
+
