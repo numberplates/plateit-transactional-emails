@@ -17,6 +17,7 @@ final class Listener
         private array $env,
         private Templates $templates,
         private \Closure $send,
+        private \Closure $relay,
     ) {}
 
     /**
@@ -45,19 +46,15 @@ final class Listener
         $prefix = 'COMPANY_' . $companyId . '_';
         $secret = $this->env[$prefix . 'WEBHOOK_SECRET'] ?? '';
         $signature = $headers['signature'] ?? '';
-        // if ($secret === '' || !is_string($signature) ||
-        //     !hash_equals(hash_hmac('sha256', $raw, $secret), $signature)) {
-        //     return [401, 'Invalid webhook signature'];
-        // }
+        // Only an explicit false disables verification; absent or invalid values keep it on.
+        $verifySignature = !in_array($this->env['WEBHOOK_VERIFY_SIGNATURE'] ?? null, ['false', false], true);
+        if ($verifySignature && ($secret === '' || !is_string($signature) ||
+            !hash_equals(hash_hmac('sha256', $raw, $secret), $signature))) {
+            return [401, 'Invalid webhook signature'];
+        }
         $events = ['order:place' => 'order_place', 'order-package:status-update' => 'order-package_status-update', 'order-document:status-update' => 'order-document_status-update'];
         if (!isset($events[$event])) {
             return [200, 'Event ignored'];
-        }
-        if ($event === 'order-document:status-update' && ($payload['status'] ?? null) !== 'rejected') {
-            return [202, 'Document status ignored'];
-        }
-        if (($headers['x-webhook-contact-hint'] ?? '') !== 'true') {
-            return [200, 'Customer contact not requested'];
         }
         if (!$this->validOrder($order, $event !== 'order-document:status-update')) {
             return [400, 'Invalid order payload'];
@@ -68,6 +65,20 @@ final class Listener
              !is_string($payload['system_package_status']['name'] ?? null) ||
              trim($payload['system_package_status']['name']) === '')) {
             return [400, 'Invalid package status payload'];
+        }
+
+        $relayKey = $prefix . 'RELAY_' . strtoupper(str_replace([':', '-'], '_', $event)) . '_URL';
+        $relayUrl = $this->env[$relayKey] ?? '';
+        if ($relayUrl !== '') {
+            if (!is_string($relayUrl) || !($this->relay)($relayUrl, $headers, $raw)) {
+                return [502, 'Webhook relay failed'];
+            }
+        }
+        if ($event === 'order-document:status-update' && ($payload['status'] ?? null) !== 'rejected') {
+            return [202, 'Document status ignored'];
+        }
+        if (($headers['x-webhook-contact-hint'] ?? '') !== 'true') {
+            return [200, 'Customer contact not requested'];
         }
 
         $config = $this->config($prefix);

@@ -4,7 +4,7 @@ PHP 8.2+ transactional emails using Twig, PHPMailer and per-company SMTP setting
 
 ## Setup
 
-1. Run `composer install`.
+1. Run `composer install` (PHP cURL and OpenSSL are required).
 2. Copy `.env.example` to `.env` and configure each company's webhook secret and SMTP credentials using `COMPANY_<id>_...` keys. Port 465 defaults to SMTPS; other ports use STARTTLS.
 3. Serve **public/** over HTTPS, keeping configuration and templates outside the document root.
 4. Set each Plateit company's webhook endpoint to `/index.php`, with the matching secret and subscriptions below.
@@ -21,7 +21,25 @@ Local development: `php -S localhost:8080 -t public`.
 
 Sending requires a valid HMAC-SHA256 `Signature` and `X-Webhook-Contact-Hint: true`. Successful sends return 200; invalid payloads return 400, invalid signatures 401, and processing failures 500 for retry. Repeated webhooks send again; there is no database.
 
+For testing, set `WEBHOOK_VERIFY_SIGNATURE=false` in `.env` to skip signature verification for all companies. Verification is enabled by default; only an explicit `false` disables it. Email sending and relaying still run, and relays forward the supplied signature without generating one.
+
+## Webhook Relays
+
+Set optional URLs per company and event in `.env`:
+
+```dotenv
+COMPANY_1_RELAY_ORDER_PLACE_URL=https://example.com/webhooks/orders
+COMPANY_1_RELAY_ORDER_PACKAGE_STATUS_UPDATE_URL=https://example.com/webhooks/packages
+COMPANY_1_RELAY_ORDER_DOCUMENT_STATUS_UPDATE_URL=https://example.com/webhooks/documents
+```
+
+Empty or absent URLs disable forwarding. After authentication and payload validation, the listener relays before applying email rules, including for non-rejected documents and false contact hints. It forwards the exact raw body, original `Signature`, event and contact-hint headers, with JSON content type. The receiver verifies using the same company's webhook secret.
+
+Only 2XX responses count as success. Network errors, timeouts (10 seconds), redirects and other HTTP responses return 502 and prevent email sending, allowing Plateit to retry. If the relay succeeds but email processing fails, the retry forwards the webhook again; receivers must tolerate duplicates. Use HTTP(S) endpoints and avoid relay loops.
+
 ## Previewing Emails
+
+Preview never relays webhooks.
 
 POST a webhook JSON payload to `/preview.php` with headers:
 

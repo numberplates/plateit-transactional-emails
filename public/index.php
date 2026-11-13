@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Listener;
 use App\SmtpSender;
 use App\Templates;
+use App\WebhookRelay;
 use Dotenv\Dotenv;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
@@ -17,6 +18,7 @@ try {
         array_merge(getenv(), $_SERVER, $_ENV),
         new Templates($root . '/templates'),
         Closure::fromCallable(new SmtpSender()),
+        Closure::fromCallable(new WebhookRelay()),
     );
     [$status, $body] = $listener->handle(
         $_SERVER['REQUEST_METHOD'] ?? '',
