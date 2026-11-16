@@ -2,13 +2,14 @@
 declare(strict_types=1);
 
 use App\Templates;
+use Dotenv\Dotenv;
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 // Preview responses can contain customer data supplied in the request.
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
-header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; sandbox");
+header("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; img-src https: http:; base-uri 'none'; form-action 'none'; sandbox");
 
 /**
  * Returns a plain text error response and stops processing.
@@ -55,7 +56,9 @@ if ($event === 'order-document:status-update' && ($payload['status'] ?? null) !=
 }
 
 try {
-    $message = (new Templates(dirname(__DIR__) . '/templates'))->render(
+    $root = dirname(__DIR__);
+    Dotenv::createImmutable($root)->safeLoad();
+    $message = (new Templates($root, array_merge(getenv(), $_SERVER, $_ENV)))->render(
         $events[$event],
         $companyId,
         $payload,
@@ -67,7 +70,7 @@ try {
     previewError(500, 'Unable to render preview');
 }
 
-// This endpoint deliberately has no email transport or company credential loading.
+// Preview only renders templates; it never sends email or relays webhooks.
 switch ($format) {
     case 'json':
         header('Content-Type: application/json; charset=utf-8');

@@ -16,7 +16,7 @@ try {
     Dotenv::createImmutable($root)->safeLoad();
     $listener = new Listener(
         array_merge(getenv(), $_SERVER, $_ENV),
-        new Templates($root . '/templates'),
+        new Templates($root, array_merge(getenv(), $_SERVER, $_ENV)),
         Closure::fromCallable(new SmtpSender()),
         Closure::fromCallable(new WebhookRelay()),
     );

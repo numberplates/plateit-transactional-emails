@@ -1,8 +1,7 @@
 {
-  "name": "retail-plates/transactional-emails",
-  "description": "Centralised Plateit transactional email webhook listener",
+  "name": "numberplates/plateit-transactional-emails",
+  "description": "Plateit transactional email despatcher.",
   "type": "project",
-  "license": "proprietary",
   "require": {
     "php": "^8.2",
     "ext-openssl": "*",

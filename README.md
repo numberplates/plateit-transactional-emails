@@ -1,6 +1,8 @@
-# Plateit Webhook Listener
+# Plateit Transactional Emails
 
-PHP 8.2+ transactional emails using Twig, PHPMailer and per-company SMTP settings.
+A small webhook handler that despatches transactional emails in response to Plateit webhook events.
+
+PHP 8.2+, Twig and PHPMailer.
 
 ## Setup
 
@@ -54,23 +56,43 @@ Returns HTML by default; `?format=text` returns plain text, and `?format=json` r
 
 ## Templates and Company-Specific Branding
 
-Shared layouts, headers, footers, URLs and CSS live in `templates/shared/default/`. Event subjects, bodies and specialised partials live in:
+Shared layouts, headers, footers, URLs and CSS live in `src/templates/shared/`. Event subjects, bodies and specialised partials live in:
 
 ```text
-templates/order_place/default/
-templates/order-package_status-update/default/
-templates/order-document_status-update/default/
+src/templates/order_place/
+src/templates/order-package_status-update/
+src/templates/order-document_status-update/
 ```
 
 Template lookup order (first match wins):
 
-1. `<event>/companies/<id>/`
-2. `<event>/default/`
-3. `shared/companies/<id>/`
-4. `shared/default/`
+1. `overrides/<event>/companies/<id>/`
+2. `src/templates/<event>/`
+3. `overrides/shared/companies/<id>/`
+4. `src/templates/shared/`
 
-Paths above are relative to `templates/`. Copy only files that differ. For example, `templates/shared/companies/1/footer.html.twig` overrides company 1's shared HTML footer.
+Paths above are relative to the application root. Copy only files that differ. For example, `overrides/shared/companies/1/footer.html.twig` overrides company 1's shared HTML footer; `overrides/order_place/companies/1/body.html.twig` changes only its order confirmation body.
+
+The root `overrides/` directory is Git-ignored, so local branding survives repository updates without merge conflicts. Create it as needed and back it up separately.
 
 All templates receive `order`; original payload fields remain available. HTML templates use `.html.twig` and automatic escaping; plain text templates use `.twig`. Override `order_url.twig` to change the status/upload link; output only the URL with query values URL-encoded.
 
-CSS cascades in this order: shared default → event default → shared company → event company. Edit `styles.css` at the appropriate level; both preview and delivery automatically inline it.
+CSS cascades in this order: shared default → event default → shared company override → event company override. Defaults live under `src/templates/`; company styles live under `overrides/` using the same paths as above. Edit `styles.css` at the appropriate level; both preview and delivery automatically inline it.
+
+## Company Images
+
+Store public branding images in `public/company-assets/` (Git-ignored). Set the global absolute base URL in `.env`:
+
+```dotenv
+ASSETS_BASE_URL=https://emails.example.com/company-assets
+```
+
+Use `assets_base_url` in any HTML template override:
+
+```twig
+{% if assets_base_url %}
+  <img src="{{ assets_base_url }}/{{ order.company_id }}/logo.png" alt="{{ order.company.name }}" width="180">
+{% endif %}
+```
+
+The URL is available in previews and sent emails, with trailing slashes removed; it is empty when unconfigured. Use HTTPS in production. Images are publicly accessible; back them up alongside `overrides/`.
